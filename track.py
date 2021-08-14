@@ -16,6 +16,7 @@ from yolov5.utils.torch_utils import select_device, time_synchronized
 from yolov5.utils.plots import plot_one_box, plot_counting
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
+from tqdm.auto import tqdm
 import argparse
 import os
 import platform
@@ -150,7 +151,10 @@ def detect(opt):
     totalUp = 0
     detection_frame_list = []
 
-    for frame_idx, (path, img, im0s, vid_cap) in enumerate(dataset):
+    # reminder
+    print('progress bar show only 1 file. to be fixed')
+
+    for frame_idx, (path, img, im0s, vid_cap) in tqdm(enumerate(dataset),total=dataset.nframes,desc='processing {}'.format(source.split("/")[-1])):
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -270,7 +274,7 @@ def detect(opt):
             )
 
             # Print time (inference + NMS)
-            print("%sDone. (%.3fs)" % (s, t2 - t1))
+            # print("%sDone. (%.3fs)" % (s, t2 - t1))
 
             # Stream results
             if show_vid:
