@@ -1,3 +1,6 @@
 [submodule "yolov5"]
 	path = yolov5
 	url = https://github.com/AntoineGlacet/yolov5.git
+[submodule "KAPutils"]
+	path = KAPutils
+	url = https://github.com/AntoineGlacet/KAPutils.git
