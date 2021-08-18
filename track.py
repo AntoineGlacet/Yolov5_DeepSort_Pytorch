@@ -16,7 +16,7 @@ from yolov5.utils.torch_utils import select_device, time_synchronized
 from yolov5.utils.plots import plot_one_box, plot_counting
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
-from tqdm.auto import tqdm
+from tqdm import tqdm
 import argparse
 import os
 import platform
@@ -152,9 +152,33 @@ def detect(opt):
     detection_frame_list = []
 
     # reminder
-    print('progress bar show only 1 file. to be fixed')
+    print('progress bar show only progress for videos')
 
-    for frame_idx, (path, img, im0s, vid_cap) in tqdm(enumerate(dataset),total=dataset.nframes,desc='processing {}'.format(source.split("/")[-1])):
+    # initialize first video progress bar
+    def create_pbar(video_index_pbar:int=0):
+        pbar = tqdm(
+            total=dataset.videos_nframes[video_index_pbar],
+            desc='processing {} (file {}/{})'.format(
+                dataset.files[video_index_pbar].split("/")[-1],
+                dataset.count + 1,
+                dataset.nf,
+                )
+        )
+        return pbar
+    
+    video_index_pbar = 0
+    
+    for frame_idx, (path, img, im0s, vid_cap) in enumerate(dataset):
+        # manual pbar update
+        if frame_idx in dataset.videos_nframes+[0]:
+            if frame_idx!=0:
+                pbar.close()
+                video_index_pbar+=1
+            pbar = create_pbar(video_index_pbar)
+            pbar.update(n=1)
+        else:
+            pbar.update(n=1)
+
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -311,6 +335,7 @@ def detect(opt):
 
     print("Done. (%.3fs)" % (time.time() - t0))
     print("total Pax= {}".format(totalUp))
+    return detection_frame_list
 
 
 if __name__ == "__main__":
