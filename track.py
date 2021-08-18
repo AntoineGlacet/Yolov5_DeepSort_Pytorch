@@ -154,7 +154,7 @@ def detect(opt):
     # reminder
     print('progress bar show only progress for videos')
 
-    # initialize first video progress bar
+    # define progress bar creation func
     def create_pbar(video_index_pbar:int=0):
         pbar = tqdm(
             total=dataset.videos_nframes[video_index_pbar],
@@ -332,6 +332,9 @@ def detect(opt):
         print("Results saved to %s" % os.getcwd() + os.sep + out)
         if platform == "darwin":  # MacOS
             os.system("open " + save_path)
+
+    # the missing update of pbar here (to be changed?)
+    pbar.update(1)        
 
     print("Done. (%.3fs)" % (time.time() - t0))
     print("total Pax= {}".format(totalUp))
